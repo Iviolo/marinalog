@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AppState, CustomField } from '../types';
 import { Plus, RefreshCw, Trash, Settings as SettingsIcon, User, Camera, ShieldCheck, AlertTriangle, X, ShieldAlert } from 'lucide-react';
@@ -28,6 +27,13 @@ const Settings: React.FC<SettingsProps> = ({ state, onReset, onAddCustomField, o
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // URL Validation (Security Fix)
+    if (userAvatar && !userAvatar.match(/^https?:\/\//i)) {
+        alert("L'URL della foto profilo deve iniziare con http:// o https://");
+        return;
+    }
+
     onUpdateUser({
       name: userName,
       rank: userRank,

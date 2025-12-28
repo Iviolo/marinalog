@@ -9,6 +9,7 @@ import WorkLog from './components/WorkLog';
 import CalendarView from './components/CalendarView';
 import InfoCFG from './components/InfoCFG';
 import { LayoutDashboard, PlusCircle, History as HistoryIcon, Settings as SettingsIcon, MessageSquare, Wrench, Calendar as CalendarIcon, BookOpen } from 'lucide-react';
+import { encryptState, decryptState } from './utils/storage';
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>(INITIAL_STATE);
@@ -18,22 +19,27 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('marinaLogState');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        setState(prev => ({
-            ...INITIAL_STATE,
-            ...parsed,
-            balances: { ...INITIAL_STATE.balances, ...parsed.balances },
-            workLogs: Array.isArray(parsed.workLogs) ? parsed.workLogs : [],
-            user: parsed.user || INITIAL_STATE.user
-        }));
+        const decrypted = decryptState(saved);
+        if (decrypted) {
+            setState(prev => ({
+                ...INITIAL_STATE,
+                ...decrypted,
+                balances: { ...INITIAL_STATE.balances, ...decrypted.balances },
+                workLogs: Array.isArray(decrypted.workLogs) ? decrypted.workLogs : [],
+                user: decrypted.user || INITIAL_STATE.user
+            }));
+        } else {
+            console.warn("Failed to decrypt state. Using initial state.");
+        }
       } catch (e) {
-        console.error("Failed to load state", e);
+        console.error("Failed to load or parse state", e);
       }
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('marinaLogState', JSON.stringify(state));
+    const encrypted = encryptState(state);
+    localStorage.setItem('marinaLogState', encrypted);
   }, [state]);
 
   const handleUpdateUser = (userData: { name: string; rank: string; avatarUrl?: string }) => {

@@ -19,6 +19,7 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ state, onAddEntry, onShowInfo
   const [isPaid, setIsPaid] = useState<boolean>(false);
   
   // Rettifica states
+  const coreBalances = ['ordinaria', 'legge937', 'malattia', 'hoursBank', 'moneyBank', 'recuperiMaturati'];
   const [rettificaTarget, setRettificaTarget] = useState<string>('ordinaria');
   const [rettificaOp, setRettificaOp] = useState<'add'|'subtract'>('add');
   const [rettificaQty, setRettificaQty] = useState<number>(1);
@@ -84,6 +85,10 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ state, onAddEntry, onShowInfo
     } else if (type === 'custom') {
         quantity = 1;
     } else if (type === 'rettifica') {
+        if (rettificaQty <= 0) {
+            alert("La quantità di rettifica deve essere positiva.");
+            return;
+        }
         quantity = rettificaOp === 'add' ? Math.abs(rettificaQty) : -Math.abs(rettificaQty);
         targetBalance = rettificaTarget;
     }
@@ -234,23 +239,34 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ state, onAddEntry, onShowInfo
                     <Edit size={18} />
                     <span className="font-bold text-xs uppercase">Modifica Manuale Saldi</span>
                 </div>
-                {/* ... existing rettifica controls ... */}
                 <select 
                     value={rettificaTarget}
                     onChange={(e) => setRettificaTarget(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-600 rounded-xl py-2 px-3 text-sm text-white focus:ring-2 focus:ring-pink-500 outline-none"
                 >
-                    <option value="ordinaria">Licenza Ordinaria</option>
-                    <option value="legge937">Legge 937</option>
-                    <option value="malattia">Malattia</option>
-                    <option value="hoursBank">Banca Ore</option>
-                    <option value="moneyBank">Compensi</option>
+                    {coreBalances.map(key => (
+                        <option key={key} value={key}>
+                            {key === 'ordinaria' ? 'Licenza Ordinaria' :
+                             key === 'legge937' ? 'Legge 937' :
+                             key === 'malattia' ? 'Malattia' :
+                             key === 'hoursBank' ? 'Banca Ore' :
+                             key === 'moneyBank' ? 'Compensi' :
+                             key === 'recuperiMaturati' ? 'Recuperi Maturati' : key}
+                        </option>
+                    ))}
                 </select>
                 <div className="grid grid-cols-2 gap-3">
                     <button type="button" onClick={() => setRettificaOp('add')} className={`py-2 rounded-lg text-xs font-bold ${rettificaOp === 'add' ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'}`}>+ Aggiungi</button>
                     <button type="button" onClick={() => setRettificaOp('subtract')} className={`py-2 rounded-lg text-xs font-bold ${rettificaOp === 'subtract' ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-500'}`}>- Rimuovi</button>
                 </div>
-                <input type="number" step="0.5" value={rettificaQty} onChange={e => setRettificaQty(parseFloat(e.target.value))} className="w-full bg-slate-900 border border-slate-600 rounded-xl py-2 px-3 text-white text-center font-bold"/>
+                <input 
+                    type="number" 
+                    step="0.5" 
+                    min="0.5"
+                    value={rettificaQty} 
+                    onChange={e => setRettificaQty(parseFloat(e.target.value))} 
+                    className="w-full bg-slate-900 border border-slate-600 rounded-xl py-2 px-3 text-white text-center font-bold"
+                />
             </div>
         )}
 
