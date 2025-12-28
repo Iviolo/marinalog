@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AppState } from '../types';
-import { askMilitaryAdvisor } from '../services/geminiService';
-import { MessageSquare, Send, Loader2, User, Bot } from 'lucide-react';
+import { MessageSquare, Send, Loader2, User, Bot, Info } from 'lucide-react';
 
 interface AssistantProps {
   state: AppState;
@@ -10,7 +9,7 @@ interface AssistantProps {
 const Assistant: React.FC<AssistantProps> = ({ state }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string}[]>([
-    { role: 'ai', text: 'Comandi! Sono l\'assistente virtuale per la logistica. Posso darti informazioni sui tuoi saldi, calcolare le ore di recupero o chiarire dubbi sui turni di guardia. Come posso aiutarti?' }
+    { role: 'ai', text: 'Comandi! Sono l\'assistente virtuale per la logistica. Attualmente, l\'interfaccia AI è disattivata per manutenzione. Posso solo confermare i tuoi saldi attuali.' }
   ]);
   const [loading, setLoading] = useState(false);
 
@@ -23,10 +22,13 @@ const Assistant: React.FC<AssistantProps> = ({ state }) => {
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setLoading(true);
 
-    const response = await askMilitaryAdvisor(userMsg, state);
+    // Static response based on current state (since AI service is removed)
+    const response = `Affermativo. I tuoi saldi attuali sono: Ordinaria ${state.balances.ordinaria} gg, Banca Ore ${state.balances.hoursBank.toFixed(1)} h, Compensi €${state.balances.moneyBank.toFixed(2)}. L'elaborazione avanzata è momentaneamente sospesa.`;
 
-    setLoading(false);
-    setMessages(prev => [...prev, { role: 'ai', text: response }]);
+    setTimeout(() => {
+        setLoading(false);
+        setMessages(prev => [...prev, { role: 'ai', text: response }]);
+    }, 1000);
   };
 
   return (
@@ -36,8 +38,8 @@ const Assistant: React.FC<AssistantProps> = ({ state }) => {
             <Bot size={24} />
         </div>
         <div>
-            <h3 className="font-bold text-white">Consigliere Navale</h3>
-            <p className="text-xs text-slate-400">Powered by Gemini</p>
+            <h3 className="font-bold text-white">Consigliere Navale (Offline)</h3>
+            <p className="text-xs text-slate-400 flex items-center gap-1"><Info size={12}/> Servizio AI disattivato</p>
         </div>
       </div>
 
@@ -74,7 +76,7 @@ const Assistant: React.FC<AssistantProps> = ({ state }) => {
             type="text" 
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Chiedi informazioni sui saldi o regolamenti..."
+            placeholder="Chiedi informazioni sui saldi..."
             className="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-gold-500 outline-none"
         />
         <button 

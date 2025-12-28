@@ -1,12 +1,11 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 import { AppState } from '../types';
 import { 
   Shield, Clock, Banknote, HeartPulse, Award, FileText, 
-  Anchor, Loader2, X, ShieldCheck, Activity, Layers
+  Anchor, Loader2, X, ShieldCheck, Activity, Layers, Info
 } from 'lucide-react';
-import { askMilitaryAdvisor } from '../services/geminiService';
+// Rimosso: import { askMilitaryAdvisor } from '../services/geminiService';
 
 interface DashboardProps {
   state: AppState;
@@ -80,6 +79,29 @@ const Dashboard: React.FC<DashboardProps> = ({ state }) => {
   const [reportBriefing, setReportBriefing] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
 
+  // Funzione per generare un riassunto statico basato sui saldi
+  const generateStaticBriefing = useMemo(() => {
+    const { ordinaria, legge937, hoursBank, moneyBank, recuperiMaturati } = state.balances;
+    
+    let briefing = "Comandi. Analisi Tattica dei Saldi Operativi:\n\n";
+    briefing += `Licenza Ordinaria: ${ordinaria} giorni disponibili. `;
+    briefing += ordinaria < 10 ? "Attenzione, il saldo è basso. " : "Il saldo è adeguato. ";
+    briefing += `Legge 937: ${legge937} giorni. `;
+    briefing += `Recuperi Maturati (GNL/CFG): ${recuperiMaturati} giorni. `;
+    briefing += `Banca Ore: ${hoursBank.toFixed(1)} ore. `;
+    briefing += `Compensi CFG: €${moneyBank.toFixed(2)}. `;
+    
+    if (moneyBank > 100) {
+        briefing += "Si consiglia di pianificare l'utilizzo dei compensi accumulati.";
+    } else if (recuperiMaturati > 5) {
+        briefing += "Si raccomanda di programmare il recupero dei giorni maturati per ottimizzare l'efficienza del personale.";
+    } else {
+        briefing += "Situazione generale stabile. Mantenere la rotta.";
+    }
+
+    return briefing;
+  }, [state.balances]);
+
   // Definizione di tutti gli item per poterli usare sia nella griglia che nel grafico
   const allStatItems = useMemo(() => {
     const baseItems = [
@@ -113,6 +135,16 @@ const Dashboard: React.FC<DashboardProps> = ({ state }) => {
       color: item.hex
     }));
   }, [allStatItems]);
+
+  const handleGenerateReport = () => {
+    setIsGenerating(true);
+    // Simula il tempo di caricamento
+    setTimeout(() => {
+        setReportBriefing(generateStaticBriefing);
+        setShowReport(true);
+        setIsGenerating(false);
+    }, 500);
+  };
 
   const LOGO_URL = "https://i.imgur.com/pS2B02V.png";
 
@@ -195,18 +227,12 @@ const Dashboard: React.FC<DashboardProps> = ({ state }) => {
           </div>
 
           <button 
-            onClick={async () => {
-              setIsGenerating(true);
-              const b = await askMilitaryAdvisor("Breve briefing strategico sui miei saldi attuali.", state);
-              setReportBriefing(b);
-              setShowReport(true);
-              setIsGenerating(false);
-            }}
+            onClick={handleGenerateReport}
             disabled={isGenerating}
             className="w-full py-4 bg-gradient-to-br from-gold-400 to-gold-600 text-navy-950 rounded-2xl font-black uppercase tracking-[0.15em] text-[10px] flex items-center justify-center gap-3 shadow-xl shadow-gold-500/20 active:scale-95 transition-all h-14"
           >
             {isGenerating ? <Loader2 className="animate-spin" size={16}/> : <FileText size={16}/>}
-            Analisi Strategica AI
+            Genera Report Tattico
           </button>
         </div>
       </div>
@@ -222,8 +248,8 @@ const Dashboard: React.FC<DashboardProps> = ({ state }) => {
                 </div>
                 <button onClick={() => setShowReport(false)} className="p-3 bg-slate-200 rounded-full active:bg-slate-300 transition-colors"><X size={20}/></button>
             </div>
-            <div className="p-8 font-serif italic text-base leading-relaxed text-navy-900/90 border-b">
-              "{reportBriefing}"
+            <div className="p-8 font-serif italic text-base leading-relaxed text-navy-900/90 border-b whitespace-pre-line">
+              {reportBriefing}
             </div>
             <div className="p-6 bg-white flex justify-center">
                <button 
