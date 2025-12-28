@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppState, INITIAL_STATE, LogEntry } from './types';
 import Dashboard from './components/Dashboard';
@@ -8,11 +7,12 @@ import Settings from './components/Settings';
 import Assistant from './components/Assistant';
 import WorkLog from './components/WorkLog';
 import CalendarView from './components/CalendarView';
-import { LayoutDashboard, PlusCircle, History as HistoryIcon, Settings as SettingsIcon, MessageSquare, Wrench, Calendar as CalendarIcon } from 'lucide-react';
+import InfoCFG from './components/InfoCFG';
+import { LayoutDashboard, PlusCircle, History as HistoryIcon, Settings as SettingsIcon, MessageSquare, Wrench, Calendar as CalendarIcon, BookOpen } from 'lucide-react';
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>(INITIAL_STATE);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'action' | 'history' | 'settings' | 'assistant' | 'worklog'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'action' | 'history' | 'settings' | 'assistant' | 'worklog' | 'infocfg'>('dashboard');
 
   useEffect(() => {
     const saved = localStorage.getItem('marinaLogState');
@@ -121,6 +121,7 @@ const App: React.FC = () => {
             <SidebarItem icon={<PlusCircle size={20} />} label="Nuovo Servizio" active={activeTab === 'action'} onClick={() => setActiveTab('action')} />
             <SidebarItem icon={<Wrench size={20} />} label="Giornale Lavori" active={activeTab === 'worklog'} onClick={() => setActiveTab('worklog')} />
             <SidebarItem icon={<HistoryIcon size={20} />} label="Storico" active={activeTab === 'history'} onClick={() => setActiveTab('history')} />
+            <SidebarItem icon={<BookOpen size={20} />} label="Info CFG" active={activeTab === 'infocfg'} onClick={() => setActiveTab('infocfg')} />
             <SidebarItem icon={<MessageSquare size={20} />} label="Assistente AI" active={activeTab === 'assistant'} onClick={() => setActiveTab('assistant')} />
             <SidebarItem icon={<SettingsIcon size={20} />} label="Impostazioni" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
         </nav>
@@ -147,9 +148,10 @@ const App: React.FC = () => {
         <div className="max-w-4xl mx-auto pb-44">
             {activeTab === 'dashboard' && <Dashboard state={state} />}
             {activeTab === 'calendar' && <CalendarView state={state} onAddEntry={handleAddEntry} />}
-            {activeTab === 'action' && <ActionPanel state={state} onAddEntry={handleAddEntry} />}
+            {activeTab === 'action' && <ActionPanel state={state} onAddEntry={handleAddEntry} onShowInfo={() => setActiveTab('infocfg')} />}
             {activeTab === 'worklog' && <WorkLog state={state} onAddLog={() => {}} onUpdateLog={() => {}} onDeleteLog={() => {}} />}
             {activeTab === 'history' && <History state={state} onDelete={(id) => setState(p => ({...p, history: p.history.filter(e => e.id !== id)}))} />}
+            {activeTab === 'infocfg' && <InfoCFG />}
             {activeTab === 'settings' && (
               <Settings 
                 state={state} 
@@ -179,7 +181,7 @@ const App: React.FC = () => {
           </div>
           
           <MobileNavItem icon={<HistoryIcon size={28} />} label="Log" active={activeTab === 'history'} onClick={() => setActiveTab('history')} />
-          <MobileNavItem icon={<SettingsIcon size={28} />} label="Profilo" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+          <MobileNavItem icon={<BookOpen size={28} />} label="Info" active={activeTab === 'infocfg'} onClick={() => setActiveTab('infocfg')} />
       </div>
     </div>
   );

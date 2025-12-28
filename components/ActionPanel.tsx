@@ -1,14 +1,14 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { LogType, AppState, LogEntry } from '../types';
-import { Calendar as CalendarIcon, Save, AlertCircle, Plus, Minus, Edit, Briefcase, ExternalLink, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, Save, AlertCircle, Plus, Minus, Edit, Briefcase, ExternalLink, ChevronLeft, ChevronRight, Check, BookOpen } from 'lucide-react';
 
 interface ActionPanelProps {
   state: AppState;
   onAddEntry: (entry: Omit<LogEntry, 'id' | 'timestamp'>) => void;
+  onShowInfo: () => void;
 }
 
-const ActionPanel: React.FC<ActionPanelProps> = ({ state, onAddEntry }) => {
+const ActionPanel: React.FC<ActionPanelProps> = ({ state, onAddEntry, onShowInfo }) => {
   const [type, setType] = useState<LogType>('ordinaria');
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -174,14 +174,13 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ state, onAddEntry }) => {
             <Save className="text-gold-500" />
             Registra Attività
         </h2>
-        <a 
-          href="https://www.aspmilitari.it/wp-content/uploads/2025/11/Allegato_B_-_Vademecum_CFG.pdf" 
-          target="_blank" 
-          rel="noopener noreferrer"
+        <button 
+          type="button"
+          onClick={onShowInfo}
           className="text-[10px] text-slate-400 hover:text-gold-500 flex items-center gap-1 transition-colors uppercase font-bold tracking-tighter"
         >
-          <ExternalLink size={12} /> PDF Vademecum
-        </a>
+          <BookOpen size={12} /> Vademecum CFG
+        </button>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-6">
