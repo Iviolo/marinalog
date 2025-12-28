@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+    <title>MarinaLog - Comando Tattico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Montserrat', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              navy: {
+                700: '#1e3a5f',
+                800: '#1a3a52',
+                900: '#0f172a',
+                950: '#020617',
+              },
+              gold: {
+                400: '#FFA500',
+                500: '#F59E0B',
+                600: '#D97706',
+              }
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+              'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'pulse-alert': 'pulseAlert 2s infinite',
+              'radar-pulse': 'radarPulse 4s cubic-bezier(0, 0, 0.2, 1) infinite',
+              'logo-float': 'logoFloatMega 6s ease-in-out infinite',
+              'glow-breathe': 'glowBreathe 4s ease-in-out infinite',
+            },
+            keyframes: {
+              fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+              slideUp: { '0%': { transform: 'translateY(30px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+              pulseAlert: { '0%, 100%': { transform: 'scale(1)', opacity: '1' }, '50%': { transform: 'scale(1.05)', opacity: '0.8' } },
+              radarPulse: { '0%': { transform: 'scale(0.8)', opacity: '0.5' }, '100%': { transform: 'scale(3)', opacity: '0' } },
+              logoFloatMega: { '0%, 100%': { transform: 'translateY(0) rotate(0deg) scale(1)' }, '50%': { transform: 'translateY(-25px) rotate(3deg) scale(1.05)' } },
+              glowBreathe: { '0%, 100%': { opacity: '0.3', transform: 'scale(1)' }, '50%': { opacity: '0.6', transform: 'scale(1.2)' } }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --safe-top: env(safe-area-inset-top);
+        --safe-bottom: env(safe-area-inset-bottom);
+      }
+      
+      body {
+        background-color: #020617;
+        color: white;
+        overflow-x: hidden;
+        -webkit-tap-highlight-color: transparent;
+        font-family: 'Inter', sans-serif;
+        overscroll-behavior-y: none; /* Previene il rimbalzo su iOS per un look più app */
+      }
+      
+      .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 1rem); }
+      .pt-safe { padding-top: env(safe-area-inset-top); }
+
+      /* LOGO GIGANTE E OLOGRAFICO */
+      .mega-logo-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin: 20px 0;
+      }
+
+      .logo-main-visual {
+        width: 300px; /* Molto più grande */
+        height: auto;
+        filter: drop-shadow(0 0 40px rgba(34, 211, 238, 0.7));
+        animation: logoFloatMega 6s ease-in-out infinite;
+        z-index: 10;
+      }
+
+      @media (max-width: 390px) {
+        .logo-main-visual {
+          width: 260px; /* Ottimizzato per iPhone più piccoli */
+        }
+      }
+
+      .hologram-backlight {
+        position: absolute;
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: glowBreathe 4s ease-in-out infinite;
+        z-index: 1;
+      }
+
+      .font-tactical {
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: -0.05em;
+      }
+
+      .ios-tab-bar {
+        background: rgba(2, 6, 23, 0.85);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .ios-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      /* Rimuove scrollbar su mobile */
+      ::-webkit-scrollbar { display: none; }
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "react": "https://esm.sh/react@^19.2.3",
+        "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+        "recharts": "https://esm.sh/recharts@^3.6.0"
+      }
+    }
+    </script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body class="pt-safe select-none">
+    <div id="root"></div>
+        <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
