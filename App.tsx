@@ -204,8 +204,8 @@ const App: React.FC = () => {
             </button>
           </div>
           
-          <MobileNavItem icon={<HistoryIcon size={28} />} label="Log" active={activeTab === 'history'} onClick={() => setActiveTab('history')} />
-          <MobileNavItem icon={<BookOpen size={28} />} label="Info" active={activeTab === 'infocfg'} onClick={() => setActiveTab('infocfg')} />
+          <MobileNavItem icon={<MessageSquare size={28} />} label="AI" active={activeTab === 'assistant'} onClick={() => setActiveTab('assistant')} />
+          <MobileNavItem icon={<SettingsIcon size={28} />} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
       </div>
     </div>
   );
