@@ -1,4 +1,3 @@
-'use client';
 
 import React, { useState } from 'react';
 import { MessageSquare, Send, Loader2 } from 'lucide-react';
@@ -38,8 +37,7 @@ const AIStudioIframe: React.FC = () => {
       }
 
       const data = await response.json();
-      return data.response || 'Error: No response from AI';
-    } catch (error) {
+        return data.reply || 'Error: No response from AI';    } catch (error) {
       return 'Error: Failed to connect to AI service';
     }
   };
