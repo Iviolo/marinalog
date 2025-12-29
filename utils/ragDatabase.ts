@@ -74,7 +74,8 @@ export async function initializeRAGDatabase(): Promise<void> {
   try {
     // In un'app reale, qui scaricheremmo e processeremmo i PDF
     // Per ora usiamo dati mock basati sulla conoscenza dei regolamenti
-    loadMockRegulatoryDatabase();
+    85
+      ();
     isInitialized = true;
   } catch (error) {
     console.error('Errore nell\'inizializzazione del database RAG:', error);
@@ -140,6 +141,39 @@ CODICE DI COMPORTAMENTO:
 - Conflitto tra ruoli pubblici e privati
 - Obbligo di trasparenza
 - Denuncia di irregolarità
+PERMESSI PER MALATTIA:
+- Giorni di malattia: secondo contratto collettivo
+- Certificato medico: obbligatorio dopo 3 giorni
+- Visite fiscali: possibile per assenze prolungate
+- Trasferibilita': no per giorni di malattia
+PERMESSI STRAORDINARI:
+- Nascita figlio: 5 giorni
+- Matrimonio: 3 giorni
+- Lutto: 3 giorni per congiunti stretti
+- Trasferimento: supporto logistico
+- Urgenze personali: max 4 giorni annui
+CONGEDI E ASPETTATIVE:
+- Congedo parentale: secondo legge 104/92
+- Congedo matrimoniale: disponibile
+- Aspettativa: per motivi personali/studi
+- Aspettativa non retribuita: massimo 5 anni
+BENEFICI E TUTELE:
+- Assistenza medica: convenzionata
+- Fondo pensionistico: integrativo FPLD
+- Polizza RCA: coperta dall'amministrazione
+- Indennita' per invalidi di guerra
+- Tutela della maternita': 5 mesi
+SICUREZZA E SALUTE:
+- DPI: forniti gratuitamente dall'amministrazione
+- Prevenzione infortuni: corsi obbligatori
+- Medico competente: disponibile per visite
+- Infortunio sul lavoro: assicurato INAIL
+- Stress lavoro-correlato: supporto psicologico
+RISARCIMENTI E INDENNIZZI:
+- Danno biologico: risarcibile
+- TFR: trattamento fine rapporto
+- Indennita' di fine rapporto: secondo CCNL
+- Indennita' di trasferimento: se involontario
   `;
 
   // Salva nel cache
