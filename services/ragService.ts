@@ -92,7 +92,8 @@ export async function initializeRAG(): Promise<void> {
     const newIndex: IndexedChunk[] = [];
     for (const chunk of allChunks) {
         const output = await embedder(chunk.text, { pooling: 'mean', normalize: true });
-        const embedding = Array.from(output.data);
+        // Fix 1: Assicuriamo che l'embedding sia un array di numeri (Float32Array è compatibile)
+        const embedding = Array.from(output.data) as number[];
         newIndex.push({ ...chunk, embedding });
     }
 
@@ -116,7 +117,8 @@ export async function queryRAG(query: string): Promise<{ answer: string; sources
 
     // 1. Retrieval: Trova i chunk più rilevanti
     const queryEmbeddingOutput = await embedder(query, { pooling: 'mean', normalize: true });
-    const queryEmbedding = Array.from(queryEmbeddingOutput.data);
+    // Fix 2: Assicuriamo che l'embedding della query sia un array di numeri
+    const queryEmbedding = Array.from(queryEmbeddingOutput.data) as number[];
 
     const rankedChunks = index.map(chunk => ({
         ...chunk,
