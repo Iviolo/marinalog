@@ -3,7 +3,9 @@ import { loadAndChunkPdf } from '../utils/pdfLoader';
 
 // Impostazioni per Transformers.js
 env.allowLocalModels = false;
-env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/';
+// Tentativo di risolvere i problemi di caricamento WASM usando un percorso relativo
+// Se questo fallisce, il problema è ambientale (CORS/rete).
+env.backends.onnx.wasm.wasmPaths = '/node_modules/@xenova/transformers/dist/';
 
 // Modello leggero per gli embedding (Sentence Transformer)
 const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
