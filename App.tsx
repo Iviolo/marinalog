@@ -218,3 +218,5 @@ const MobileNavItem = ({ icon, label, active, onClick }: any) => (
 );
 
 export default App;
+
+// Force rebuild: Trigger Vercel redeploy with updated AIStudioIframe component
