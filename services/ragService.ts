@@ -63,7 +63,7 @@ export async function initializeRAG(): Promise<void> {
         qaPipeline = await pipeline('question-answering', QA_MODEL);
         console.log("[RAG Service] Modelli AI caricati con successo.");
     } catch (error) {
-        console.error("[RAG Service] Errore nel caricamento dei modelli AI:", error);
+        console.error("[RAG Service] Errore CRITICO nel caricamento dei modelli AI. Controllare la connessione e i percorsi WASM:", error);
         throw new Error("Impossibile caricare i modelli AI locali.");
     }
 
@@ -92,7 +92,6 @@ export async function initializeRAG(): Promise<void> {
     const newIndex: IndexedChunk[] = [];
     for (const chunk of allChunks) {
         const output = await embedder(chunk.text, { pooling: 'mean', normalize: true });
-        // Fix 1: Assicuriamo che l'embedding sia un array di numeri (Float32Array è compatibile)
         const embedding = Array.from(output.data) as number[];
         newIndex.push({ ...chunk, embedding });
     }
@@ -117,7 +116,6 @@ export async function queryRAG(query: string): Promise<{ answer: string; sources
 
     // 1. Retrieval: Trova i chunk più rilevanti
     const queryEmbeddingOutput = await embedder(query, { pooling: 'mean', normalize: true });
-    // Fix 2: Assicuriamo che l'embedding della query sia un array di numeri
     const queryEmbedding = Array.from(queryEmbeddingOutput.data) as number[];
 
     const rankedChunks = index.map(chunk => ({
