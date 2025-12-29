@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { MessageSquare, Send, Loader2 } from 'lucide-react';
 
+interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
