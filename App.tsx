@@ -134,15 +134,15 @@ const App: React.FC = () => {
       </aside>
 
       {/* IPHONE HEADER - PULITO E SENZA LOGO/TITOLO */}
-      <header className="lg:hidden bg-navy-950/40 backdrop-blur-2xl border-b border-white/5 p-4 sticky top-0 z-30 flex justify-end items-center h-16 pt-safe shadow-xl">
+      <header className="lg:hidden bg-navy-950/40 backdrop-blur-2xl border-b border-white/5 p-4 sticky top-0 z-30 flex justify-end items-center h-20 pt-safe shadow-xl">
          <div className="flex items-center gap-4">
             <div className="text-right">
-                <p className="text-[10px] font-black text-white uppercase leading-none tracking-tighter">{state.user.rank}</p>
-                <p className="text-[9px] text-blue-400 font-bold uppercase tracking-widest">{state.user.name}</p>
+                <p className="text-xs font-black text-white uppercase leading-none tracking-tighter">{state.user.rank}</p>
+                <p className="text-lg text-blue-400 font-bold uppercase tracking-widest">{state.user.name}</p>
             </div>
             <img 
               src={state.user.avatarUrl} 
-              className="w-10 h-10 rounded-xl border-2 border-blue-500/50 object-cover shadow-2xl active:scale-95 transition-transform" 
+              className="w-14 h-14 rounded-xl border-2 border-blue-500/50 object-cover shadow-2xl active:scale-95 transition-transform" 
               onClick={() => setActiveTab('settings')} 
               alt="Profilo"
             />
