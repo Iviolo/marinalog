@@ -3,8 +3,7 @@ import { MessageSquare, Info } from 'lucide-react';
 
 // PLACEHOLDER: Inserisci qui l'URL di incorporamento (Embed URL) della tua app Google AI Studio.
 // L'URL dovrebbe essere simile a: https://ai.studio/apps/embed/drive/YOUR_APP_ID
-const AI_STUDIO_EMBED_URL = "https://ai.studio/apps/embed/drive/1PXJdmbIlkjRDGPf3SMH6huMiwdDOCMAs"; 
-
+const AI_STUDIO_EMBED_URL = "https://aistudio.google.com/apps/drive/1obdDE7OBZ5P06jjABAY5JFvVGfI58ceO?source=&showAssistant=true&showPreview=true";
 const AIStudioIframe: React.FC = () => {
   return (
     <div className="bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-700 shadow-lg flex flex-col h-[600px] overflow-hidden animate-fade-in mb-20 lg:mb-0">
