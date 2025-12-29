@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AppState, LogEntry, LogType } from '../types';
 import { ChevronLeft, ChevronRight, Info, Plus } from 'lucide-react';
@@ -20,6 +19,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({ state, onAddEntry }) => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const monthName = currentDate.toLocaleString('it-IT', { month: 'long' });
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
   const days = [];
   const startOffset = (firstDayOfMonth(year, month) + 6) % 7; // Adjust to start Monday
@@ -94,6 +96,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ state, onAddEntry }) => {
         {days.map((day, i) => {
             if (day === null) return <div key={i} className="aspect-square opacity-0"></div>;
             
+            const dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isToday = dStr === todayStr;
             const entry = getEntryForDay(day);
             const isWeekend = (i % 7) === 5 || (i % 7) === 6;
             const styles = entry ? getTypeStyles(entry.type) : null;
@@ -103,12 +107,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ state, onAddEntry }) => {
                     key={i}
                     onClick={() => handleDayClick(day)}
                     className={`aspect-square relative rounded-xl lg:rounded-2xl flex flex-col items-center justify-center transition-all group overflow-hidden border cursor-pointer
-                        ${entry 
+                        ${isToday 
+                            ? 'border-blue-400 ring-2 ring-blue-400/50 shadow-[0_0_20px_rgba(96,165,250,0.6)] bg-blue-900/30' // Stile per oggi
+                            : entry 
                             ? `${styles?.bg} ${styles?.border} shadow-[0_0_15px_rgba(0,0,0,0.3)]`
                             : (isWeekend ? 'bg-slate-700/50 border-gold-500/20 hover:border-gold-500/50' : 'bg-slate-900/30 border-slate-700 hover:border-slate-500')
                         }`}
                 >
-                    <span className={`text-xs lg:text-sm font-bold ${entry ? 'text-white' : (isWeekend ? 'text-gold-500' : 'text-slate-400')}`}>
+                    <span className={`text-xs lg:text-sm font-bold ${isToday ? 'text-blue-300' : entry ? 'text-white' : (isWeekend ? 'text-gold-500' : 'text-slate-400')}`}>
                         {day}
                     </span>
                     
