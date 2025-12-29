@@ -1,6 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
 import { MessageSquare, Send, Loader2 } from 'lucide-react';
-import { searchRegulations, initializeRAGDatabase } from '../utils/ragDatabase';
 
 interface Message {
   id: string;
@@ -21,6 +22,32 @@ const AIStudioIframe: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const generateAIResponse = async (userInput: string): Promise<string> => {
+    try {
+      const response = await fetch('/api/groq', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userInput,
+          context: 'Sei specializzato in regolamenti della Marina Militare italiana',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return `Errore: ${data.error || 'Impossibile contattare il servizio IA'}`;
+      }
+
+      return data.message || 'Nessuna risposta ricevuta';
+    } catch (error) {
+      console.error('Errore nella richiesta:', error);
+      return 'Mi dispiace, c\'è stato un errore nel contattare il servizio. Riprova più tardi.';
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
@@ -32,23 +59,25 @@ const AIStudioIframe: React.FC = () => {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const responseText = await generateAIResponse(inputValue);
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: generateAIResponse(inputValue),
+        content: responseText,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Errore:', error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
-
-  const generateAIResponse = (userInput: string): string => { initializeRAGDatabase(); const results = searchRegulations(userInput); if (results.length > 0) { return `Risposta dai Regolamenti MM:\n${results[0].relevantText}\nFonte: ${results[0].source}`; } const lowerInput = userInput.toLowerCase(); if (lowerInput.includes('rapporto') || lowerInput.includes('disciplinare')) { return 'REGOLAMENTO DISCIPLINARE: Rapporto disciplinare è procedimento formale. Sanzioni: ammonimento, censura, multa, sospensione, demansionamento, licenziamento. Diritto di difesa garantito. Prescrizione: 2 anni.'; } if (lowerInput.includes('turno') || lowerInput.includes('guardia')) { return 'TURNI: Max 4 notti consecutive, 8 ore riposo minimo, riposo settimanale 36 ore, turni notturni maggiorati 25%.'; } return 'Puoi chiedermi su: Turni, Permessi, Malattia, Diritti, Regolamento Disciplinare, CCNL.'; };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 md:p-6">
@@ -63,7 +92,6 @@ const AIStudioIframe: React.FC = () => {
           </div>
         </div>
       </div>
-
       <div className="max-w-4xl mx-auto flex flex-col bg-gradient-to-br from-blue-900/40 to-indigo-900/40 backdrop-blur-xl rounded-3xl border border-blue-500/50 shadow-2xl overflow-hidden min-h-[600px]">
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
           {messages.map((message) => (
@@ -89,7 +117,6 @@ const AIStudioIframe: React.FC = () => {
             </div>
           )}
         </div>
-
         <div className="border-t border-blue-500/30 p-4 md:p-6 bg-slate-900/50">
           <form onSubmit={handleSendMessage} className="flex gap-2 md:gap-3">
             <input
@@ -109,7 +136,6 @@ const AIStudioIframe: React.FC = () => {
           </form>
         </div>
       </div>
-
       <div className="max-w-4xl mx-auto mt-6">
         <div className="bg-blue-950/50 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-blue-500/30">
           <p className="text-xs md:text-sm text-blue-300 text-center">
