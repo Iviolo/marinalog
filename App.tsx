@@ -10,11 +10,14 @@ import CalendarView from './components/CalendarView';
 import InfoCFG from './components/InfoCFG';
 import { LayoutDashboard, PlusCircle, History as HistoryIcon, Settings as SettingsIcon, MessageSquare, Wrench, Calendar as CalendarIcon, BookOpen } from 'lucide-react';
 import { encryptState, decryptState } from './utils/storage';
+import { initializeRAG, isRAGReady } from './services/ragService'; // Import RAG service
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>(INITIAL_STATE);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'action' | 'history' | 'settings' | 'assistant' | 'worklog' | 'infocfg'>('dashboard');
+  const [ragStatus, setRagStatus] = useState<'loading' | 'ready' | 'error'>('loading');
 
+  // 1. Load/Save State
   useEffect(() => {
     const saved = localStorage.getItem('marinaLogState');
     if (saved) {
@@ -41,6 +44,21 @@ const App: React.FC = () => {
     const encrypted = encryptState(state);
     localStorage.setItem('marinaLogState', encrypted);
   }, [state]);
+
+  // 2. Initialize RAG Service
+  useEffect(() => {
+    const init = async () => {
+        try {
+            await initializeRAG();
+            setRagStatus('ready');
+        } catch (e) {
+            console.error("RAG Initialization failed:", e);
+            setRagStatus('error');
+        }
+    };
+    init();
+  }, []);
+
 
   const handleUpdateUser = (userData: { name: string; rank: string; avatarUrl?: string }) => {
     setState(prev => ({
@@ -167,7 +185,7 @@ const App: React.FC = () => {
                 onUpdateUser={handleUpdateUser}
               />
             )}
-            {activeTab === 'assistant' && <Assistant state={state} />}
+            {activeTab === 'assistant' && <Assistant state={state} ragStatus={ragStatus} />}
         </div>
       </main>
 

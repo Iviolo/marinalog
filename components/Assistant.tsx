@@ -1,34 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AppState } from '../types';
-import { MessageSquare, Send, Loader2, User, Bot, Info } from 'lucide-react';
+import { MessageSquare, Send, Loader2, User, Bot, Info, AlertTriangle, CheckCircle } from 'lucide-react';
+import { queryRAG } from '../services/ragService';
 
 interface AssistantProps {
   state: AppState;
+  ragStatus: 'loading' | 'ready' | 'error';
 }
 
-const Assistant: React.FC<AssistantProps> = ({ state }) => {
+interface ChatMessage {
+    role: 'user' | 'ai';
+    text: string;
+    sources?: string[];
+}
+
+const Assistant: React.FC<AssistantProps> = ({ state, ragStatus }) => {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string}[]>([
-    { role: 'ai', text: 'Comandi! Sono l\'assistente virtuale per la logistica. Attualmente, l\'interfaccia AI è disattivata per manutenzione. Posso solo confermare i tuoi saldi attuali.' }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Initialize welcome message based on RAG status
+    if (messages.length === 0) {
+        let welcomeMessage: ChatMessage;
+        if (ragStatus === 'loading') {
+            welcomeMessage = { role: 'ai', text: 'Comandi! Sto caricando i regolamenti della Marina Militare (IA Offline in preparazione). Attendere l\'indicizzazione iniziale...' };
+        } else if (ragStatus === 'ready') {
+            welcomeMessage = { role: 'ai', text: 'Comandi! Sono il Consigliere Navale. L\'IA Offline è attiva. Chiedimi pure informazioni sui regolamenti MM (Licenze, Disciplina, Orari, ecc.).' };
+        } else {
+            welcomeMessage = { role: 'ai', text: 'Attenzione: Errore nel caricamento dell\'IA Offline. Posso solo confermare i tuoi saldi attuali.' };
+        }
+        setMessages([welcomeMessage]);
+    }
+  }, [ragStatus]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
     const userMsg = input;
     setInput('');
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setLoading(true);
 
-    // Static response based on current state (since AI service is removed)
-    const response = `Affermativo. I tuoi saldi attuali sono: Ordinaria ${state.balances.ordinaria} gg, Banca Ore ${state.balances.hoursBank.toFixed(1)} h, Compensi €${state.balances.moneyBank.toFixed(2)}. L'elaborazione avanzata è momentaneamente sospesa.`;
-
-    setTimeout(() => {
+    try {
+        if (ragStatus === 'ready') {
+            const { answer, sources } = await queryRAG(userMsg);
+            setMessages(prev => [...prev, { role: 'ai', text: answer, sources }]);
+        } else {
+            // Fallback to static response if RAG is not ready
+            const response = `Affermativo. I tuoi saldi attuali sono: Ordinaria ${state.balances.ordinaria} gg, Banca Ore ${state.balances.hoursBank.toFixed(1)} h, Compensi €${state.balances.moneyBank.toFixed(2)}. L'IA è in stato: ${ragStatus}.`;
+            setMessages(prev => [...prev, { role: 'ai', text: response }]);
+        }
+    } catch (error) {
+        console.error("AI Query Error:", error);
+        setMessages(prev => [...prev, { role: 'ai', text: "Si è verificato un errore critico durante l'elaborazione della query AI." }]);
+    } finally {
         setLoading(false);
-        setMessages(prev => [...prev, { role: 'ai', text: response }]);
-    }, 1000);
+    }
+  };
+
+  const getStatusDisplay = () => {
+    if (ragStatus === 'loading') {
+        return (
+            <p className="text-xs text-yellow-400 flex items-center gap-1 animate-pulse">
+                <Loader2 size={12} className="animate-spin"/> Indicizzazione Regolamenti in corso...
+            </p>
+        );
+    }
+    if (ragStatus === 'ready') {
+        return (
+            <p className="text-xs text-emerald-400 flex items-center gap-1">
+                <CheckCircle size={12}/> IA Offline Attiva
+            </p>
+        );
+    }
+    return (
+        <p className="text-xs text-red-400 flex items-center gap-1">
+            <AlertTriangle size={12}/> Errore IA
+        </p>
+    );
   };
 
   return (
@@ -38,8 +95,8 @@ const Assistant: React.FC<AssistantProps> = ({ state }) => {
             <Bot size={24} />
         </div>
         <div>
-            <h3 className="font-bold text-white">Consigliere Navale (Offline)</h3>
-            <p className="text-xs text-slate-400 flex items-center gap-1"><Info size={12}/> Servizio AI disattivato</p>
+            <h3 className="font-bold text-white">Consigliere Navale</h3>
+            {getStatusDisplay()}
         </div>
       </div>
 
@@ -58,6 +115,12 @@ const Assistant: React.FC<AssistantProps> = ({ state }) => {
                     <div className="whitespace-pre-line leading-relaxed text-sm">
                         {msg.text}
                     </div>
+                    {msg.sources && msg.sources.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-slate-600 text-[10px] text-slate-400 italic">
+                            <span className="font-bold block mb-0.5">Fonti:</span>
+                            {msg.sources.join(', ')}
+                        </div>
+                    )}
                 </div>
             </div>
         ))}
@@ -65,10 +128,11 @@ const Assistant: React.FC<AssistantProps> = ({ state }) => {
             <div className="flex justify-start">
                 <div className="bg-slate-700 p-4 rounded-2xl rounded-bl-none flex items-center gap-2">
                     <Loader2 className="animate-spin text-gold-500" size={16} />
-                    <span className="text-slate-400 text-sm">Elaborazione risposta...</span>
+                    <span className="text-slate-400 text-sm">Elaborazione risposta RAG...</span>
                 </div>
             </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       <form onSubmit={handleSend} className="p-4 bg-slate-800 border-t border-slate-700 flex gap-2">
@@ -76,12 +140,13 @@ const Assistant: React.FC<AssistantProps> = ({ state }) => {
             type="text" 
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Chiedi informazioni sui saldi..."
-            className="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-gold-500 outline-none"
+            placeholder={ragStatus === 'ready' ? "Chiedi un regolamento..." : "Attendere caricamento IA..."}
+            disabled={loading || ragStatus === 'loading'}
+            className="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-gold-500 outline-none disabled:opacity-50"
         />
         <button 
             type="submit"
-            disabled={loading}
+            disabled={loading || ragStatus === 'loading'}
             className="bg-gold-500 hover:bg-gold-600 disabled:opacity-50 text-navy-900 p-3 rounded-xl transition-colors font-bold"
         >
             <Send size={20} />
