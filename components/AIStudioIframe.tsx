@@ -22,10 +22,9 @@ const AIStudioIframe: React.FC = () => {
 
   const generateAIResponse = async (userInput: string): Promise<string> => {
     try {
-      const response = await fetch(https://api.groq.com/openai/v1/chat/completions, {
+      const response = await fetch(/api/groq`, {
         method: 'POST',
         headers: {
-                    'Authorization': 'Bearer gsk_kJqXNZVFo6lqdt95rewWGdyb3FYkd13F4T22jHBpodbuHAm4USC',
                       
           'Content-Type': 'application/json',
         },
