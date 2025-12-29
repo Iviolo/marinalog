@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { MessageSquare, Send, Loader2 } from 'lucide-react';
 
-interface Message {
-  id: string;
+feat: Chiama direttamente API Groq dal componente con chiave hardcoded  id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
@@ -24,9 +23,11 @@ const AIStudioIframe: React.FC = () => {
 
   const generateAIResponse = async (userInput: string): Promise<string> => {
     try {
-      const response = await fetch('/api/groq', {
+      const response = await fetch(https://api.groq.com/openai/v1/chat/completions, {
         method: 'POST',
         headers: {
+                    'Authorization': 'Bearer gsk_kJqXNZVFo6lqdt95rewWGdyb3FYkd13F4T22jHBpodbuHAm4USC',
+                      
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
