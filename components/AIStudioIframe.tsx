@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquare, Send, Loader2 } from 'lucide-react';
+import { searchRegulations, initializeRAGDatabase } from '../utils/ragDatabase';
 
 interface Message {
   id: string;
@@ -47,27 +48,7 @@ const AIStudioIframe: React.FC = () => {
     }, 1000);
   };
 
-  const generateAIResponse = (userInput: string): string => {
-    const lowerInput = userInput.toLowerCase();
-
-    if (lowerInput.includes('turno') || lowerInput.includes('guardia') || lowerInput.includes('notte')) {
-      return 'Per i turni di guardia nella Marina Militare: il massimo di notti consecutive è generalmente 4, seguite da un periodo di riposo. Le pause durante il turno devono essere di almeno 8 ore continuative. Hai altre domande specifiche sui turni?';
-    }
-
-    if (lowerInput.includes('permesso') || lowerInput.includes('licenza') || lowerInput.includes('ferie')) {
-      return 'I permessi e le licenze sono regolati dal CCNL e dai regolamenti MM. In genere hai diritto a:\n- 4 giorni di licenza straordinaria\n- Ferie annuali secondo il contratto\n- Permessi per motivi personali con preavviso. Vuoi saperne di più?';
-    }
-
-    if (lowerInput.includes('malattia') || lowerInput.includes('malato') || lowerInput.includes('certificato')) {
-      return 'In caso di malattia: devi comunicare al tuo comandante entro l\'inizio del turno. È necessario un certificato medico dopo 3 giorni consecutivi. La malattia è coperta dalle assicurazioni della MM.';
-    }
-
-    if (lowerInput.includes('straordinario') || lowerInput.includes('extra') || lowerInput.includes('ore')) {
-      return 'Gli straordinari nella MM sono compensati secondo il CCNL. Generalmente: ore diurne = 1:1, ore notturne = 1:1.25, festivi = 1:1.5. La richiesta deve essere autorizzata dal comandante.';
-    }
-
-    return 'Grazie per la domanda! Posso aiutarti con informazioni su:\n- Turni e Guardia\n- Permessi e Licenze\n- Malattia e Assenze\n- Straordinari\n- Norme e Regolamenti MM\nCosa vorresti sapere?';
-  };
+  const generateAIResponse = (userInput: string): string => { initializeRAGDatabase(); const results = searchRegulations(userInput); if (results.length > 0) { return `Risposta dai Regolamenti MM:\n${results[0].relevantText}\nFonte: ${results[0].source}`; } const lowerInput = userInput.toLowerCase(); if (lowerInput.includes('rapporto') || lowerInput.includes('disciplinare')) { return 'REGOLAMENTO DISCIPLINARE: Rapporto disciplinare è procedimento formale. Sanzioni: ammonimento, censura, multa, sospensione, demansionamento, licenziamento. Diritto di difesa garantito. Prescrizione: 2 anni.'; } if (lowerInput.includes('turno') || lowerInput.includes('guardia')) { return 'TURNI: Max 4 notti consecutive, 8 ore riposo minimo, riposo settimanale 36 ore, turni notturni maggiorati 25%.'; } return 'Puoi chiedermi su: Turni, Permessi, Malattia, Diritti, Regolamento Disciplinare, CCNL.'; };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 md:p-6">
