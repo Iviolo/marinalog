@@ -4,18 +4,17 @@ import Dashboard from './components/Dashboard';
 import ActionPanel from './components/ActionPanel';
 import History from './components/History';
 import Settings from './components/Settings';
-import Assistant from './components/Assistant';
+import AIStudioIframe from './components/AIStudioIframe'; // Nuovo componente
 import WorkLog from './components/WorkLog';
 import CalendarView from './components/CalendarView';
 import InfoCFG from './components/InfoCFG';
 import { LayoutDashboard, PlusCircle, History as HistoryIcon, Settings as SettingsIcon, MessageSquare, Wrench, Calendar as CalendarIcon, BookOpen } from 'lucide-react';
 import { encryptState, decryptState } from './utils/storage';
-import { initializeRAG, isRAGReady } from './services/ragService'; // Import RAG service
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>(INITIAL_STATE);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'action' | 'history' | 'settings' | 'assistant' | 'worklog' | 'infocfg'>('dashboard');
-  const [ragStatus, setRagStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  // Rimosso ragStatus e initializeRAG
 
   // 1. Load/Save State
   useEffect(() => {
@@ -45,19 +44,7 @@ const App: React.FC = () => {
     localStorage.setItem('marinaLogState', encrypted);
   }, [state]);
 
-  // 2. Initialize RAG Service
-  useEffect(() => {
-    const init = async () => {
-        try {
-            await initializeRAG();
-            setRagStatus('ready');
-        } catch (e) {
-            console.error("RAG Initialization failed:", e);
-            setRagStatus('error');
-        }
-    };
-    init();
-  }, []);
+  // Rimosso: 2. Initialize RAG Service
 
 
   const handleUpdateUser = (userData: { name: string; rank: string; avatarUrl?: string }) => {
@@ -185,7 +172,7 @@ const App: React.FC = () => {
                 onUpdateUser={handleUpdateUser}
               />
             )}
-            {activeTab === 'assistant' && <Assistant state={state} ragStatus={ragStatus} />}
+            {activeTab === 'assistant' && <AIStudioIframe />}
         </div>
       </main>
 
