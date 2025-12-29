@@ -1,24 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+  const { message, context } = req.body;
+  const GROQ_API_KEY = process.env.GROQ_API_KEY;
+  const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-export async function POST(request: NextRequest) {
+  if (!GROQ_API_KEY) {
+    return res.status(500).json({ error: 'GROQ_API_KEY non configurato' });
+  }
+
+  const systemPrompt = 'Sei un consulente IA specializzato in regolamentazioni della Marina Militare italiana. Contesto: ${context || "Informazioni generali su turni, permessi e regolamenti"}. Rispondi sempre in italiano con precisione e chiarezza. Se non conosci la risposta, dillo onestamente.';
+
   try {
-    const { message, context } = await request.json();
-
-    if (!GROQ_API_KEY) {
-      return NextResponse.json(
-        { error: 'GROQ_API_KEY non configurato' },
-        { status: 500 }
-      );
-    }
-
-    const systemPrompt = `Sei un consulente IA specializzato in regolamentazioni della Marina Militare italiana.
-Contexto: ${context || 'Informazioni generali su turni, permessi e regolamenti'}
-
-Rispondi sempre in italiano con precisione e chiarezza. Se non conosci la risposta, dillo onestamente.`;
-
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
@@ -42,30 +37,17 @@ Rispondi sempre in italiano con precisione e chiarezza. Se non conosci la rispos
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      return NextResponse.json(
-        { error: data.error?.message || 'Errore Groq API' },
-        { status: response.status }
-      );
+      const errorData = await response.json();
+      return res.status(response.status).json({ error: errorData.error.message });
     }
 
-    const content = data.choices?.[0]?.message?.content || 'Nessuna risposta';
+    const data = await response.json();
+    const reply = data.choices[0].message.content;
 
-    return NextResponse.json({
-      success: true,
-      message: content,
-    });
+    return res.status(200).json({ reply });
   } catch (error) {
-    console.error('Errore nella richiesta Groq:', error);
-    return NextResponse.json(
-      { error: 'Errore interno del server' },
-      { status: 500 }
-    );
+    console.error('Errore Groq:', error);
+    return res.status(500).json({ error: 'Errore nel contattare il servizio' });
   }
 }
-
-export const config = {
-  runtime: 'nodejs',
-};
