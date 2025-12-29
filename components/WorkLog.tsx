@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { AppState, WorkLogEntry } from '../types';
 import { Wrench, Anchor, Trash2, Filter, Calendar, Clock, Ship, PenTool, Plus, Search, Save, X, Edit2 } from 'lucide-react';
@@ -129,7 +128,7 @@ const WorkLog: React.FC<WorkLogProps> = ({ state, onAddLog, onUpdateLog, onDelet
         
         {/* Left Column: Form */}
         <div className="lg:col-span-1 space-y-6">
-          <div className={`bg-slate-800/60 backdrop-blur-md p-6 rounded-2xl border shadow-xl transition-colors duration-300 ${editingId ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-slate-700'}`}>
+          <div className={`bg-slate-800/60 backdrop-blur-md p-6 rounded-2xl border shadow-xl transition-colors duration-300 ${editingId ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-slate-700'} hover-3d`}>
             <div className="flex justify-between items-center mb-4">
                 <h3 className={`text-lg font-bold flex items-center gap-2 ${editingId ? 'text-emerald-400' : 'text-white'}`}>
                   {editingId ? <Edit2 size={20}/> : <Plus className="text-gold-500" size={20}/>}
@@ -219,7 +218,7 @@ const WorkLog: React.FC<WorkLogProps> = ({ state, onAddLog, onUpdateLog, onDelet
         <div className="lg:col-span-2 space-y-6">
           
           {/* Filters Bar */}
-          <div className="bg-slate-800/60 backdrop-blur-md p-4 rounded-xl border border-slate-700 flex flex-col md:flex-row gap-4">
+          <div className="bg-slate-800/60 backdrop-blur-md p-4 rounded-xl border border-slate-700 flex flex-col md:flex-row gap-4 hover-3d">
             <div className="flex items-center gap-2 text-gold-500 font-bold min-w-[80px]">
                <Filter size={20}/> Filtri:
             </div>
@@ -267,7 +266,7 @@ const WorkLog: React.FC<WorkLogProps> = ({ state, onAddLog, onUpdateLog, onDelet
                     }`}></div>
                     
                     {/* Card */}
-                    <div className={`wave-card bg-slate-800/80 backdrop-blur p-5 rounded-xl border shadow-lg hover:border-blue-500/50 transition-all ${
+                    <div className={`wave-card bg-slate-800/80 backdrop-blur p-5 rounded-xl border shadow-lg hover:border-blue-500/50 transition-all hover-3d ${
                         log.id === editingId ? 'border-emerald-500 ring-1 ring-emerald-500/50' : 'border-slate-700'
                     }`}>
                        <div className="flex justify-between items-start mb-3 relative z-20">

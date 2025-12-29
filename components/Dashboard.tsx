@@ -60,9 +60,27 @@ const StatCard: React.FC<{
   borderColor: string;
   staggerClass: string;
   decimals?: number;
-}> = ({ title, value, suffix, icon, colorClass, borderColor, staggerClass, decimals = 0 }) => {
+  hexColor: string; // Aggiunto per il gradiente
+}> = ({ title, value, suffix, icon, colorClass, borderColor, staggerClass, decimals = 0, hexColor }) => {
+  
+  // Calcola la percentuale per la barra di progresso (simulata)
+  const maxValue = title.includes('Ordinaria') ? 39 : 10; // Esempio di massimo
+  const progressPercent = Math.min(100, (value / maxValue) * 100);
+
   return (
-    <div className={`relative ios-card p-4 rounded-[1.5rem] shadow-xl animate-card-entry ${staggerClass} border-t-2 ${borderColor} overflow-hidden flex flex-col justify-between h-28`}>
+    <div className={`relative ios-card p-4 rounded-[1.5rem] shadow-xl animate-card-entry ${staggerClass} border-t-2 ${borderColor} overflow-hidden flex flex-col justify-between h-28 hover-3d`}>
+      
+      {/* Progress Bar Animata (Simulata) */}
+      <div 
+        className="absolute bottom-0 left-0 h-1 opacity-5" 
+        style={{ 
+          width: `${progressPercent}%`, 
+          background: `linear-gradient(to right, transparent, ${hexColor})`,
+          animation: 'fill-progress 1.5s ease-out forwards',
+          '--progress-width': `${progressPercent}%`
+        } as React.CSSProperties}
+      ></div>
+
       <div className="absolute top-0 right-0 p-2 opacity-5">
         {React.cloneElement(icon as React.ReactElement, { size: 40 })}
       </div>
@@ -178,13 +196,14 @@ const Dashboard: React.FC<DashboardProps> = ({ state }) => {
             borderColor={`border-t-[${item.hex}]`}
             staggerClass={`stagger-${(index % 4) + 1}`}
             decimals={item.id === 'hoursBank' || item.id === 'moneyBank' ? 1 : 0}
+            hexColor={item.hex}
           />
         ))}
       </div>
 
       {/* ANALISI VETTORIALE - TUTTE LE VOCI DINAMICHE */}
       <div className="max-w-2xl mx-auto">
-        <div className="ios-card p-5 rounded-[2rem] shadow-2xl space-y-5 animate-slide-up border-t-2 border-blue-500/20">
+        <div className="ios-card p-5 rounded-[2rem] shadow-2xl space-y-5 animate-slide-up border-t-2 border-blue-500/20 hover-3d">
           <div className="flex justify-between items-center">
               <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                   <Activity size={14} className="text-emerald-500"/> Indice Assetti Globale

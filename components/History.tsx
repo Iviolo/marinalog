@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AppState, LogEntry } from '../types';
 import { Trash2, FileText, Briefcase } from 'lucide-react';
@@ -26,6 +25,20 @@ const History: React.FC<HistoryProps> = ({ state, onDelete }) => {
       return '';
   };
 
+  const getBadgeClasses = (type: LogEntry['type']) => {
+    switch (type) {
+        case 'ordinaria': return 'bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-blue-500/30';
+        case 'legge937': return 'bg-gradient-to-r from-yellow-500 to-yellow-700 text-white shadow-yellow-500/30';
+        case 'malattia': return 'bg-gradient-to-r from-red-500 to-red-700 text-white shadow-red-500/30';
+        case 'guardia': return 'bg-gradient-to-r from-purple-500 to-purple-700 text-white shadow-purple-500/30';
+        case 'recupero': return 'bg-gradient-to-r from-emerald-500 to-emerald-700 text-white shadow-emerald-500/30';
+        case 'permesso': return 'bg-gradient-to-r from-orange-500 to-orange-700 text-white shadow-orange-500/30';
+        case 'straordinario': return 'bg-gradient-to-r from-indigo-500 to-indigo-700 text-white shadow-indigo-500/30';
+        case 'rettifica': return 'bg-gradient-to-r from-pink-500 to-pink-700 text-white shadow-pink-500/30';
+        default: return 'bg-slate-600 text-white shadow-slate-500/30';
+    }
+  };
+
   return (
     <div className="bg-slate-800/50 backdrop-blur-md p-6 rounded-2xl border border-slate-700 shadow-lg pb-24 lg:pb-6">
       <h2 className="text-xl font-bold text-white mb-6">Storico Movimenti</h2>
@@ -35,17 +48,10 @@ const History: React.FC<HistoryProps> = ({ state, onDelete }) => {
           <div className="text-center text-slate-500 py-10">Nessun movimento registrato.</div>
         ) : (
           state.history.map((entry) => (
-            <div key={entry.id} className="group bg-slate-900/40 p-4 rounded-xl border border-slate-700/50 hover:border-slate-600 transition-all flex justify-between items-center">
+            <div key={entry.id} className="group bg-slate-900/40 p-4 rounded-xl border border-slate-700/50 hover:border-slate-600 transition-all flex justify-between items-center hover-3d">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide
-                    ${entry.type === 'ordinaria' ? 'bg-blue-500/20 text-blue-400' :
-                      entry.type === 'guardia' ? 'bg-purple-500/20 text-purple-400' :
-                      entry.type === 'straordinario' ? 'bg-indigo-500/20 text-indigo-400' :
-                      entry.type === 'malattia' ? 'bg-red-500/20 text-red-400' :
-                      entry.type === 'rettifica' ? 'bg-pink-500/20 text-pink-400' :
-                      'bg-slate-500/20 text-slate-400'
-                    }`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow-md ${getBadgeClasses(entry.type)}`}>
                     {entry.type}
                   </span>
                   <span className="text-slate-400 text-xs">{entry.date}</span>
