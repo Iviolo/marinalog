@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { MessageSquare, Send, Loader2 } from 'lucide-react';
 
-feat: Chiama direttamente API Groq dal componente con chiave hardcoded  id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
