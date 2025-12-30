@@ -87,7 +87,7 @@ const PDFUploader: React.FC<PDFUploaderProps> = ({ onPdfLoad, onError }) => {
     accept: {
       'application/pdf': ['.pdf']
     },
-    disabled: isLoading, // isLoading è boolean, quindi il tipo è corretto.
+    disabled: isLoading as boolean, // Correzione: forzo il tipo a boolean
     maxSize: 500 * 1024 * 1024,
     multiple: false,
   });
