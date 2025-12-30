@@ -144,18 +144,18 @@ const AIConsultantChat: React.FC = () => {
       const arrayBuffer = await pdfFile.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       let extractedText = '';
-      const pagesToProcess = Math.min(pagesToExtract, totalPages);
+      const pagesToProcess = pagesToExtract; // Usiamo pagesToExtract come limite superiore
 
       for (let i = 1; i <= pagesToProcess; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
+        // Uniamo il testo con uno spazio e aggiungiamo un separatore per l'IA
         const pageText = textContent.items.map((item: any) => item.str).join(' ');
         extractedText += pageText + '\n\n---\n\n';
 
-        // Update progress every 5 pages or at the end
-        if (i % 5 === 0 || i === pagesToProcess) {
-          setExtractionProgress(Math.round((i / pagesToProcess) * 100));
-        }
+        // Aggiorna il progresso
+        const progress = Math.round((i / pagesToProcess) * 100);
+        setExtractionProgress(progress);
       }
 
       setPdfContent(extractedText);
@@ -187,7 +187,9 @@ const AIConsultantChat: React.FC = () => {
       });
 
       if (!response.ok) {
-        return 'ERRORE CRITICO: Impossibile stabilire la connessione con il modello IA (Groq API). Verificare la chiave API.';
+        const errorData = await response.json();
+        console.error("Groq API Error:", errorData);
+        return `ERRORE CRITICO: Impossibile stabilire la connessione con il modello IA (Groq API). Dettagli: ${errorData.error || 'Verificare la chiave API.'}`;
       }
 
       const data = await response.json();
@@ -343,7 +345,7 @@ const AIConsultantChat: React.FC = () => {
 
   // Determine which section to show
   const showUpload = !pdfFile;
-  const showPageSelection = pdfFile && totalPages > 0;
+  const showPageSelection = pdfFile && totalPages > 0 && !pdfContent;
   const showChat = pdfContent && !isExtracting;
 
   return (
