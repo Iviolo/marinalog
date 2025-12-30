@@ -87,9 +87,13 @@ const PDFUploader: React.FC<PDFUploaderProps> = ({ onPdfLoad, onError }) => {
     accept: {
       'application/pdf': ['.pdf']
     },
-    disabled: isLoading as boolean, // Correzione: forzo il tipo a boolean
+    disabled: isLoading as boolean,
     maxSize: 500 * 1024 * 1024,
     multiple: false,
+    // Aggiungo le proprietà mancanti per soddisfare il compilatore TS
+    onDragEnter: undefined,
+    onDragOver: undefined,
+    onDragLeave: undefined,
   });
 
   return (
