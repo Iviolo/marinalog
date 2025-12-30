@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { message, context } = req.body;
+  const { message, context, pagesExtracted } = req.body;
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
   const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
@@ -12,7 +12,13 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'GROQ_API_KEY non configurato' });
   }
 
-  const systemPrompt = `Sei un consulente IA specializzato in regolamentazioni della Marina Militare italiana. Contesto: ${context || 'Informazioni generali su turni, permessi e regolamenti'}. Rispondi sempre in italiano con precisione e chiarezza. Se non conosci la risposta, dillo onestamente.`;
+  let systemPrompt = `Sei un consulente IA specializzato in Marina Militare. Rispondi sempre in italiano con precisione e chiarezza. Se non conosci la risposta, dillo onestamente.`;
+
+  if (context && pagesExtracted) {
+      systemPrompt += `\n\nHo analizzato ${pagesExtracted} pagine dei regolamenti:\n\n${context}\n\nBasa le tue risposte su questi regolamenti.`;
+  } else {
+      systemPrompt += ` Contesto: Informazioni generali su turni, permessi e regolamenti.`;
+  }
 
   try {
     console.log('Sending request to Groq API with message:', message);
