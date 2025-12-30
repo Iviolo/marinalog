@@ -164,7 +164,7 @@ const AIConsultantChat: React.FC = () => {
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       console.log('[PDF-DEBUG] ✅ PDF caricato correttamente:', {
         numPages: pdf.numPages,
-        fingerprint: pdf.fingerprint
+        fingerprints: pdf.fingerprints // Corretto: da fingerprint a fingerprints
       });
       
       let extractedText = '';
