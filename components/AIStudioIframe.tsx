@@ -164,7 +164,7 @@ const AIConsultantChat: React.FC = () => {
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       console.log('[PDF-DEBUG] ✅ PDF caricato correttamente:', {
         numPages: pdf.numPages,
-        fingerprints: pdf.fingerprints // Corretto: da fingerprint a fingerprints
+        fingerprints: pdf.fingerprints
       });
       
       let extractedText = '';
@@ -285,7 +285,13 @@ const AIConsultantChat: React.FC = () => {
         id="pdf-upload-input" 
         accept="application/pdf" 
         onChange={(e) => e.target.files && handlePdfUpload(e.target.files[0])}
-        className="hidden"
+        style={{ 
+          position: 'absolute',
+          opacity: 0,
+          width: 0,
+          height: 0,
+          pointerEvents: 'none'
+        }}
       />
     </div>
   );
