@@ -50,4 +50,5 @@ export default async function handler(req, res) {
     console.error('Errore Groq:', error);
     return res.status(500).json({ error: 'Errore nel contattare il servizio' });
   }
+// API Groq con GROQ_API_KEY configurato su Vercel
 }
