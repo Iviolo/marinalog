@@ -88,7 +88,8 @@ const PDFUploader: React.FC<PDFUploaderProps> = ({ onPdfLoad, onError }) => {
       'application/pdf': ['.pdf']
     },
     disabled: isLoading,
-    maxSize: 500 * 1024 * 1024
+    maxSize: 500 * 1024 * 1024,
+    multiple: false, // Fix per l'errore TypeScript
   });
 
   return (
