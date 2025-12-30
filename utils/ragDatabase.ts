@@ -74,8 +74,7 @@ export async function initializeRAGDatabase(): Promise<void> {
   try {
     // In un'app reale, qui scaricheremmo e processeremmo i PDF
     // Per ora usiamo dati mock basati sulla conoscenza dei regolamenti
-    85
-      ();
+    loadMockRegulatoryDatabase();
     isInitialized = true;
   } catch (error) {
     console.error('Errore nell\'inizializzazione del database RAG:', error);
