@@ -45,7 +45,7 @@ const AnimatedNumber: React.FC<{ value: number; decimals?: number; suffix?: stri
     <span className={`font-tactical transition-all duration-700 ${isDone ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : 'text-slate-600'}`} style={{ fontWeight: isDone ? 900 : 500 }}>
       {displayValue.toLocaleString('it-IT', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
       {isDone && suffix && (
-        <span className="text-[10px] font-black opacity-50 ml-1 uppercase">{suffix}</span>
+        <span className="text-sm font-black opacity-70 ml-1 uppercase">{suffix}</span>
       )}
     </span>
   );
@@ -85,7 +85,8 @@ const StatCard: React.FC<{
         {React.cloneElement(icon as React.ReactElement, { size: 40 })}
       </div>
       <h3 className="text-slate-500 text-[9px] uppercase font-black tracking-widest leading-tight">{title}</h3>
-      <div className={`text-xl font-black flex items-baseline gap-1 ${colorClass}`}>
+      {/* Modifica qui: da text-xl a text-3xl o 4xl */}
+      <div className={`text-4xl font-black flex items-baseline gap-1 ${colorClass}`}>
         <AnimatedNumber value={value} suffix={suffix} decimals={decimals} delay={200} />
       </div>
     </div>
@@ -160,8 +161,8 @@ const Dashboard: React.FC<DashboardProps> = ({ state }) => {
     setTimeout(() => {
         setReportBriefing(generateStaticBriefing);
         setShowReport(true);
-        setIsGenerating(false);
     }, 500);
+    setIsGenerating(false);
   };
 
   const LOGO_URL = "https://i.imgur.com/pS2B02V.png";
