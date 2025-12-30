@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { MessageSquare, Send, Loader2, Target, Zap, File, Upload, XCircle, CheckCircle, BookOpen, AlertTriangle, Trash2 } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Configurazione del worker per pdfjs-dist
-// Nota: La versione deve corrispondere a quella installata. Usiamo la variabile globale per sicurezza.
-pdfjsLib.GlobalWorkerOptions.workerSrc = 
-  `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configurazione del worker per pdfjs-dist (CRITICO)
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  console.log('[PDFJS-INIT] ✅ Worker configurato:', pdfjsLib.GlobalWorkerOptions.workerSrc);
+  console.log('[PDFJS-INIT] 📌 pdfjs.js version:', pdfjsLib.version);
+}
 
 interface Message {
   role: 'user' | 'assistant';
@@ -80,11 +82,20 @@ const AIConsultantChat: React.FC = () => {
   };
 
   const handlePdfUpload = async (file: File) => {
+    console.log('[UPLOAD-DEBUG] 📁 File ricevuto:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      sizeInMB: (file.size / 1024 / 1024).toFixed(2)
+    });
+
     if (file.type !== 'application/pdf') {
+      console.error('[UPLOAD-DEBUG] ❌ File non è PDF:', file.type);
       setStatusMessage('❌ Seleziona un file PDF valido.');
       return;
     }
     if (file.size > MAX_PDF_SIZE) {
+      console.error('[UPLOAD-DEBUG] ❌ File troppo grande');
       setStatusMessage(`❌ File troppo grande (max ${MAX_PDF_SIZE / 1024 / 1024}MB)`);
       return;
     }
@@ -98,12 +109,16 @@ const AIConsultantChat: React.FC = () => {
 
     try {
       const arrayBuffer = await file.arrayBuffer();
+      console.log('[UPLOAD-DEBUG] ✅ arrayBuffer pronto:', arrayBuffer.byteLength);
+      
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      console.log('[UPLOAD-DEBUG] ✅ PDF caricato - pages:', pdf.numPages);
+
       setTotalPages(pdf.numPages);
       setPagesToExtract(Math.min(50, pdf.numPages));
       setStatusMessage(`✅ PDF CARICATO: ${file.name}`);
     } catch (error) {
-      console.error("Error loading PDF:", error);
+      console.error('[UPLOAD-DEBUG] ❌ ERRORE CARICAMENTO:', error);
       setStatusMessage('❌ Errore lettura PDF - Riprova');
       setPdfFile(null);
     }
@@ -141,50 +156,85 @@ const AIConsultantChat: React.FC = () => {
     setExtractionProgress(0);
 
     try {
+      console.log('[PDF-DEBUG] ✅ Inizio estrazione pages');
+      
       const arrayBuffer = await pdfFile.arrayBuffer();
+      console.log('[PDF-DEBUG] ✅ arrayBuffer creato:', arrayBuffer.byteLength, 'bytes');
+      
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      console.log('[PDF-DEBUG] ✅ PDF caricato correttamente:', {
+        numPages: pdf.numPages,
+        fingerprint: pdf.fingerprint
+      });
+      
       let extractedText = '';
-      const pagesToProcess = pagesToExtract; // Usiamo pagesToExtract come limite superiore
-
+      const pagesToProcess = pagesToExtract;
+      console.log('[PDF-DEBUG] 📄 Iniziando estrazione da pagina 1 a', pagesToProcess);
+      
       for (let i = 1; i <= pagesToProcess; i++) {
         const page = await pdf.getPage(i);
+        console.log(`[PDF-DEBUG] 📖 Pagina ${i}: caricata`);
+        
         const textContent = await page.getTextContent();
-        // Uniamo il testo con uno spazio e aggiungiamo un separatore per l'IA
-        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        const items = textContent.items || []; // Aggiunto fallback per sicurezza
+        console.log(`[PDF-DEBUG] 📖 Pagina ${i}: testo estratto, items count:`, items.length);
+        
+        const pageText = items.map((item: any) => item.str).join(' ');
+        console.log(`[PDF-DEBUG] 📖 Pagina ${i}: lunghezza testo:`, pageText.length, 'caratteri');
+        
         extractedText += pageText + '\n\n---\n\n';
-
-        // Aggiorna il progresso
+        
         const progress = Math.round((i / pagesToProcess) * 100);
         setExtractionProgress(progress);
+        console.log(`[PDF-DEBUG] 📊 Progresso:`, progress + '%');
       }
-
+      
+      console.log('[PDF-DEBUG] ✅ Testo totale estratto:', extractedText.length, 'caratteri');
+      console.log('[PDF-DEBUG] 🔍 Primi 200 caratteri:', extractedText.substring(0, 200));
+      
       setPdfContent(extractedText);
       setIsExtracting(false);
       setStatusMessage(`✅ PRONTO! Estratte ${pagesToProcess} pagine da ${totalPages}.`);
       
-      // Scroll to chat input after extraction
       scrollToBottom();
-
+      console.log('[PDF-DEBUG] ✅ Estrazione COMPLETATA');
+      
     } catch (error) {
-      console.error("Error during text extraction:", error);
+      console.error("[PDF-DEBUG] ❌ ERRORE DURANTE ESTRAZIONE:", error);
+      console.error("[PDF-DEBUG] ❌ Stack trace:", error instanceof Error ? error.stack : 'N/A');
       setIsExtracting(false);
       setStatusMessage('❌ Errore durante l\'estrazione del testo.');
     }
   };
 
   const generateAIResponse = async (userInput: string): Promise<string> => {
+    console.log('[AI-DEBUG] 📨 Inizio generateAIResponse');
+    console.log('[AI-DEBUG] 📌 userInput:', userInput);
+    console.log('[AI-DEBUG] 📌 pdfContent exists:', !!pdfContent);
+    console.log('[AI-DEBUG] 📌 pdfContent length:', pdfContent.length);
+
     try {
+      const requestBody = {
+        message: userInput,
+        context: pdfContent,
+        pagesToExtract: pdfContent ? pagesToExtract : 0,
+      };
+      
+      console.log('[AI-DEBUG] 📤 Invio request a /api/groq:', {
+        messageLength: userInput.length,
+        contextLength: pdfContent.length,
+        pagesExtracted: pdfContent ? pagesToExtract : 0
+      });
+
       const response = await fetch('/api/groq', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          message: userInput,
-          context: pdfContent, // Passa il contenuto estratto
-          pagesExtracted: pdfContent ? pagesToExtract : 0,
-        }),
+        body: JSON.stringify(requestBody),
       });
+      
+      console.log('[AI-DEBUG] 📥 Response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -193,9 +243,10 @@ const AIConsultantChat: React.FC = () => {
       }
 
       const data = await response.json();
+      console.log('[AI-DEBUG] ✅ Risposta ricevuta da Groq');
       return data.reply || 'ERRORE: Risposta non valida dal sistema IA.';
     } catch (error) {
-      console.error("AI Service Error:", error);
+      console.error("[AI-DEBUG] ❌ ERRORE:", error);
       return 'ERRORE DI RETE: Fallimento nella comunicazione con il servizio IA.';
     }
   };
