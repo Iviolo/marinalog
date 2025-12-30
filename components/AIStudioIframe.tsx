@@ -124,15 +124,24 @@ const AIConsultantChat: React.FC = () => {
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
+    e.currentTarget.classList.remove('bg-navy-800/70');
+    e.currentTarget.classList.add('bg-navy-900/50');
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handlePdfUpload(e.dataTransfer.files[0]);
     }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
+    e.currentTarget.classList.add('bg-navy-800/70');
+    e.currentTarget.classList.remove('bg-navy-900/50');
+  };
+  
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.currentTarget.classList.remove('bg-navy-800/70');
+    e.currentTarget.classList.add('bg-navy-900/50');
   };
 
   const setPresetPages = (num: number) => {
@@ -217,7 +226,7 @@ const AIConsultantChat: React.FC = () => {
       const requestBody = {
         message: userInput,
         context: pdfContent,
-        pagesToExtract: pdfContent ? pagesToExtract : 0,
+        pagesExtracted: pdfContent ? pagesToExtract : 0,
       };
       
       console.log('[AI-DEBUG] 📤 Invio request a /api/groq:', {
@@ -271,29 +280,25 @@ const AIConsultantChat: React.FC = () => {
   // --- UI Components ---
 
   const UploadZone = () => (
-    <div 
+    <label 
+      htmlFor="pdf-upload-input"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      onClick={() => document.getElementById('pdf-upload-input')?.click()}
-      className="p-8 text-center border-2 border-dashed border-gold-500/50 bg-navy-900/50 rounded-xl cursor-pointer hover:bg-navy-800/70 transition-all hover:border-solid hover:shadow-lg hover:shadow-gold-500/10"
+      onDragLeave={handleDragLeave}
+      className="p-8 text-center border-2 border-dashed border-gold-500/50 bg-navy-900/50 rounded-xl cursor-pointer transition-all hover:border-solid hover:shadow-lg hover:shadow-gold-500/10"
     >
       <Upload size={32} className="mx-auto text-gold-500 mb-2" />
       <p className="text-sm font-bold text-white">TRASCINA PDF QUI o CLICCA</p>
       <p className="text-xs text-slate-500 mt-1">⚠️ Max 500MB - Solo PDF</p>
+      
       <input 
         type="file" 
         id="pdf-upload-input" 
         accept="application/pdf" 
         onChange={(e) => e.target.files && handlePdfUpload(e.target.files[0])}
-        style={{ 
-          position: 'absolute',
-          opacity: 0,
-          width: 0,
-          height: 0,
-          pointerEvents: 'none'
-        }}
+        style={{ display: 'none' }}
       />
-    </div>
+    </label>
   );
 
   const PageSelection = () => {
